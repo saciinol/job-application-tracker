@@ -9,7 +9,7 @@ import { Eye, EyeOff } from 'lucide-react';
 import Button from '../ui/Button';
 
 const RegisterForm = () => {
-	const { register } = useAuth();
+const { register } = useAuth();
 	const [firstName, setFirstName] = useState('');
 	const [lastName, setLastName] = useState('');
 	const [formData, setFormData] = useState({
@@ -34,6 +34,13 @@ const RegisterForm = () => {
 			}));
 		}
 
+		if ((name === 'firstName' || name === 'lastName') && validationErrors.name) {
+			setValidationErrors((prev) => ({
+				...prev,
+				name: null,
+			}));
+		}
+
 		if (name === 'firstName') {
 			setFirstName(value);
 			return;
@@ -53,11 +60,10 @@ const RegisterForm = () => {
 	const handleSubmit = async (e) => {
 		e.preventDefault();
 
-		const fullName = `${firstName} ${lastName}`.trim();
-
 		const validation = validateRegister({
 			...formData,
-			name: fullName,
+			firstName,
+			lastName,
 		});
 
 		if (!validation.isValid) {
@@ -65,13 +71,15 @@ const RegisterForm = () => {
 			return;
 		}
 
+		const fullName = `${firstName} ${lastName}`.trim();
+
 		setValidationErrors({});
 
 		setIsSubmitting(true);
 		try {
-			await register({
-				name: fullName,
-				email: formData.email.toLowerCase().trim(),
+      await register({
+        name: fullName,
+				email: formData.email.trim(),
 				password: formData.password,
 			});
 			navigate('/');
@@ -83,7 +91,7 @@ const RegisterForm = () => {
 	};
 
 	return (
-		<div onSubmit={handleSubmit} className="flex flex-col">
+		<form onSubmit={handleSubmit} className="flex flex-col">
 			<div className="flex flex-col">
 				<div className="flex gap-2">
 					<div className="relative">
@@ -96,7 +104,6 @@ const RegisterForm = () => {
 							className={`${validationErrors.name ? 'border-red-600 focus:border-red-600' : ''}`}
 							placeholder=""
 							disabled={isSubmitting}
-							required
 						/>
 
 						<Label htmlFor="firstName">First Name</Label>
@@ -112,7 +119,6 @@ const RegisterForm = () => {
 							className={`${validationErrors.name ? 'border-red-600 focus:border-red-600' : ''}`}
 							placeholder=""
 							disabled={isSubmitting}
-							required
 						/>
 
 						<Label htmlFor="lastName">Last Name</Label>
@@ -134,7 +140,6 @@ const RegisterForm = () => {
 					className={`${validationErrors.email ? 'border-red-600 focus:border-red-600' : ''}`}
 					placeholder=""
 					disabled={isSubmitting}
-					required
 				/>
 
 				<Label htmlFor="email">Email</Label>
@@ -144,8 +149,8 @@ const RegisterForm = () => {
 				</p>
 			</div>
 
-			<div className="relative flex flex-col">
-				<div className="flex items-center justify-end">
+			<div className="flex flex-col">
+				<div className="flex items-center justify-end relative">
 					<Input
 						id="password"
 						type={showPassword ? 'text' : 'password'}
@@ -155,7 +160,6 @@ const RegisterForm = () => {
 						className={`${validationErrors.password ? 'border-red-600 focus:border-red-600' : ''}`}
 						placeholder=""
 						disabled={isSubmitting}
-						required
 					/>
 
 					<Label htmlFor="password">Password</Label>
@@ -173,8 +177,8 @@ const RegisterForm = () => {
 				</p>
 			</div>
 
-			<div className="relative flex flex-col">
-				<div className="flex items-center justify-end">
+			<div className="flex flex-col">
+				<div className="flex items-center justify-end relative">
 					<Input
 						id="confirmPassword"
 						type={showConfirmPassword ? 'text' : 'password'}
@@ -184,7 +188,6 @@ const RegisterForm = () => {
 						className={`${validationErrors.confirmPassword ? 'border-red-600 focus:border-red-600' : ''}`}
 						placeholder=""
 						disabled={isSubmitting}
-						required
 					/>
 
 					<Label htmlFor="confirmPassword">Confirm Password</Label>
@@ -207,7 +210,7 @@ const RegisterForm = () => {
 					Sign Up
 				</Button>
 			</div>
-		</div>
+		</form>
 	);
 };
 

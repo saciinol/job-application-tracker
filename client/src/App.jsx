@@ -1,25 +1,65 @@
-import { Routes, Route } from 'react-router-dom';
-import Login from './pages/Login';
-import Register from './pages/Register';
+import { lazy, Suspense } from 'react';
+import { Routes, Route, Navigate } from 'react-router-dom';
 import { useAuth } from './context/auth/useAuth';
-import { Loader2 } from 'lucide-react';
+import { PageLoader } from './components/ui/LoadingSpinner';
+import ScrollToTop from './components/ui/ScrollToTop';
+
+const Login = lazy(() => import('./pages/Login'));
+const Register = lazy(() => import('./pages/Register'));
+const Dashboard = lazy(() => import('./pages/Dashboard'));
+
+const ProtectedRoute = ({ children }) => {
+	const { user, loading } = useAuth();
+
+	if (loading) return <PageLoader />;
+
+	if (!user) return <Navigate to="/login" />;
+
+	return children;
+};
+
+const PublicRoute = ({ children }) => {
+	const { user, loading } = useAuth();
+
+	if (loading) return <PageLoader />;
+
+	if (user) return <Navigate to="/" />;
+
+	return children;
+};
 
 const App = () => {
-	const { loading } = useAuth();
-
-	if (loading) {
-		return (
-			<div className="min-h-screen flex items-center justify-center">
-				<Loader2 className="size-6 animate-spin" />
-			</div>
-		);
-	}
-
 	return (
-		<Routes>
-			<Route path="/login" element={<Login />} />
-			<Route path="/register" element={<Register />} />
-		</Routes>
+		<Suspense fallback={<PageLoader />}>
+      <ScrollToTop />
+      
+			<Routes>
+				<Route
+					path="/login"
+					element={
+						<PublicRoute>
+							<Login />
+						</PublicRoute>
+					}
+				/>
+				<Route
+					path="/register"
+					element={
+						<PublicRoute>
+							<Register />
+						</PublicRoute>
+					}
+				/>
+				<Route
+					path="/"
+					element={
+						<ProtectedRoute>
+							<Dashboard />
+						</ProtectedRoute>
+					}
+				/>
+			</Routes>
+		</Suspense>
 	);
 };
 

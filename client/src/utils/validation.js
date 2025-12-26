@@ -1,12 +1,12 @@
 export const validateRegister = (formData) => {
-  const {name, email, password, confirmPassword} = formData;
-  const errors = {};
+	const { firstName, lastName, email, password, confirmPassword } = formData;
+	const errors = {};
 
-  if (!name || !name.trim()) {
-    errors.name = ['Name is required'];
-  }
+	if (!firstName || !firstName.trim() || !lastName || !lastName.trim()) {
+		errors.name = ['Full name is required'];
+	}
 
-  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+	const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 	if (!email || !email.trim()) {
 		errors.email = ['Email is required'];
 	} else if (!emailRegex.test(email.trim())) {
@@ -19,12 +19,12 @@ export const validateRegister = (formData) => {
 		errors.password = ['Password must be at least 6 characters long'];
 	}
 
-   if (password !== confirmPassword) {
-      errors.confirmPassword = ['Passwords do not match'];
-   }
+	if (password !== confirmPassword) {
+		errors.confirmPassword = ['Passwords do not match'];
+	}
 
-   return {
-      isValid: Object.keys(errors).length === 0,
-      errors,
-   }
-}
+	return {
+		isValid: Object.keys(errors).length === 0,
+		errors,
+	};
+};

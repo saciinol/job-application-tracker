@@ -28,7 +28,7 @@ export const register = async (req, res, next) => {
 
 export const login = async (req, res, next) => {
 	try {
-		const { email, password } = req.body;
+		const { email, password } = req.body || {};
 
 		const user = await userModel.findByEmail(email);
 		if (!user) throw new AppError('Invalid email or password', 401);

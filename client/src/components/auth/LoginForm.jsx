@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Loader2, Eye, EyeOff } from 'lucide-react';
+import { Eye, EyeOff } from 'lucide-react';
 
 import { useAuth } from '../../context/auth/useAuth';
 import Button from '../ui/Button';
@@ -29,16 +29,16 @@ const LoginForm = () => {
 
 	const handleSubmit = async (e) => {
 		e.preventDefault();
-    setIsSubmitting(true);
+		setIsSubmitting(true);
 
 		try {
-			await login(formData.email.trim(), formData.password);
+			await login({ email: formData.email.trim(), password: formData.password });
 			// eslint-disable-next-line no-unused-vars
 		} catch (error) {
 			setValidationErrors('Invalid email or password.');
 		} finally {
-      setIsSubmitting(false);
-    }
+			setIsSubmitting(false);
+		}
 	};
 
 	return (
@@ -67,7 +67,7 @@ const LoginForm = () => {
 						name="password"
 						value={formData.password}
 						onChange={handleChange}
-						className={`pr-12 ${validationErrors ? 'border-red-600 focus:border-red-600' : ''}`}
+						className={`${validationErrors ? 'border-red-600 focus:border-red-600' : ''}`}
 						placeholder=""
 						disabled={isSubmitting}
 						required
@@ -89,7 +89,7 @@ const LoginForm = () => {
 			</div>
 
 			<Button type="submit" disabled={isSubmitting} className="w-full">
-        Login
+				Login
 			</Button>
 		</form>
 	);
