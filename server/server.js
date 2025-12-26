@@ -5,7 +5,6 @@ import cors from 'cors';
 import morgan from 'morgan';
 
 import { validateEnv } from './src/utils/validateEnv.js';
-import corsOptions from './src/config/cors.js';
 import authRoutes from './src/routes/authRoutes.js';
 import applicationsRoutes from './src/routes/applicationsRoutes.js';
 import analyticsRoutes from './src/routes/analyticsRoutes.js';
@@ -17,7 +16,11 @@ validateEnv(); // validate env before starting server
 const app = express();
 
 app.use(helmet());
-app.use(cors(corsOptions));
+app.use(
+	cors({
+		origin: 'http:localhost:5173',
+	})
+);
 app.use(morgan('dev'));
 app.use(express.json({ limit: '10mb' }));
 

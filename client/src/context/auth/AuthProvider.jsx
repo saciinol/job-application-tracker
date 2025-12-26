@@ -6,24 +6,6 @@ export const AuthProvider = ({ children }) => {
 	const [user, setUser] = useState(null);
 	const [loading, setLoading] = useState(true);
 
-	useEffect(() => {
-		const verifyUser = async () => {
-			const token = localStorage.getItem('token');
-			if (token) {
-				try {
-					const { data } = authAPI.verify();
-					setUser(data.user);
-				} catch {
-					localStorage.removeItem('token');
-					localStorage.removeItem('user');
-				}
-			}
-			setLoading(false);
-		};
-
-		verifyUser();
-	}, []);
-
 	const login = async (email, password) => {
 		const { data } = await authAPI.login({ email, password });
 		localStorage.setItem('token', data.token);
@@ -45,6 +27,21 @@ export const AuthProvider = ({ children }) => {
 		localStorage.removeItem('user');
 		setUser(null);
 	};
+
+	useEffect(() => {
+		const verifyUser = async () => {
+			try {
+				const { data } = await authAPI.verify();
+				setUser(data.user);
+			} catch {
+				logout();
+			} finally {
+				setLoading(false);
+			}
+		};
+
+		verifyUser();
+	}, []);
 
 	return <AuthContext.Provider value={{ user, login, register, logout, loading }}>{children}</AuthContext.Provider>;
 };

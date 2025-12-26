@@ -1,20 +1,20 @@
 import { useState } from 'react';
 import { Loader2, Eye, EyeOff } from 'lucide-react';
 
+import { useAuth } from '../../context/auth/useAuth';
 import Button from '../ui/Button';
 import Input from '../ui/Input';
 import Label from '../ui/Label';
-import { useAuth } from '../../context/auth/useAuth';
 
 const LoginForm = () => {
-	const { login, loading } = useAuth();
-
+	const { login } = useAuth();
 	const [formData, setFormData] = useState({
 		email: '',
 		password: '',
 	});
 	const [showPassword, setShowPassword] = useState(false);
 	const [validationErrors, setValidationErrors] = useState('');
+	const [isSubmitting, setIsSubmitting] = useState(false);
 
 	const handleChange = (e) => {
 		const { name, value } = e.target;
@@ -29,13 +29,16 @@ const LoginForm = () => {
 
 	const handleSubmit = async (e) => {
 		e.preventDefault();
+    setIsSubmitting(true);
 
 		try {
 			await login(formData.email.trim(), formData.password);
 			// eslint-disable-next-line no-unused-vars
 		} catch (error) {
 			setValidationErrors('Invalid email or password.');
-		}
+		} finally {
+      setIsSubmitting(false);
+    }
 	};
 
 	return (
@@ -49,7 +52,7 @@ const LoginForm = () => {
 					onChange={handleChange}
 					className={`${validationErrors ? 'border-red-600 focus:border-red-600' : ''}`}
 					placeholder=""
-					disabled={loading}
+					disabled={isSubmitting}
 					required
 				/>
 
@@ -66,7 +69,7 @@ const LoginForm = () => {
 						onChange={handleChange}
 						className={`pr-12 ${validationErrors ? 'border-red-600 focus:border-red-600' : ''}`}
 						placeholder=""
-						disabled={loading}
+						disabled={isSubmitting}
 						required
 					/>
 
@@ -85,8 +88,8 @@ const LoginForm = () => {
 				</p>
 			</div>
 
-			<Button type="submit" className="w-full">
-				{loading ? <Loader2 className="size-6 animate-spin" /> : 'Login'}
+			<Button type="submit" disabled={isSubmitting} className="w-full">
+        Login
 			</Button>
 		</form>
 	);
