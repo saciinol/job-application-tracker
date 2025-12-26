@@ -22,6 +22,12 @@ api.interceptors.response.use(
 	(response) => response,
 	(error) => {
 		if (error.response?.status === 401) {
+
+			const isLoginEndpoint = error.config.url.includes('/auth/login');
+			if (isLoginEndpoint) {
+				return Promise.reject(error);
+			}
+
 			localStorage.removeItem('token');
 			localStorage.removeItem('user');
 			window.location.href = '/login';

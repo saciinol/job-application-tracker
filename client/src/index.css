@@ -9,7 +9,7 @@
 }
 
 [data-theme='dark'] {
-	--color-muted: oklch(0.2686 0 0);
-	--color-background: oklch(0.1448 0 0);
+	--color-muted: oklch(0.2478 0 0);
+	--color-background:oklch(0.209 0 0);
 	--color-primary: oklch(1 0 0);
 }

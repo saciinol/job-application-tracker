@@ -3,6 +3,7 @@ import { Routes, Route, Navigate } from 'react-router-dom';
 import { useAuth } from './context/auth/useAuth';
 import { PageLoader } from './components/ui/LoadingSpinner';
 import ScrollToTop from './components/ui/ScrollToTop';
+import Layout from './components/ui/Layout';
 
 const Login = lazy(() => import('./pages/Login'));
 const Register = lazy(() => import('./pages/Register'));
@@ -19,7 +20,7 @@ const ProtectedRoute = ({ children }) => {
 };
 
 const PublicRoute = ({ children }) => {
-	const { user, loading } = useAuth();
+const { user, loading } = useAuth();
 
 	if (loading) return <PageLoader />;
 
@@ -31,8 +32,8 @@ const PublicRoute = ({ children }) => {
 const App = () => {
 	return (
 		<Suspense fallback={<PageLoader />}>
-      <ScrollToTop />
-      
+			<ScrollToTop />
+
 			<Routes>
 				<Route
 					path="/login"
@@ -54,7 +55,9 @@ const App = () => {
 					path="/"
 					element={
 						<ProtectedRoute>
-							<Dashboard />
+							<Layout>
+								<Dashboard />
+							</Layout>
 						</ProtectedRoute>
 					}
 				/>

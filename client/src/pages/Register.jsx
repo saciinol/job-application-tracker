@@ -1,19 +1,17 @@
-import { Pencil } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { Briefcase } from 'lucide-react';
 
 import RegisterForm from '../components/auth/RegisterForm';
-import Mode from '../components/ui/Mode';
 
 const Register = () => {
 	return (
 		<section className="bg-muted h-screen">
-			<Mode />
 			<div className="flex h-full items-center justify-center">
 				<div className="border-muted bg-background flex w-full max-w-sm flex-col items-center gap-y-8 rounded-md border px-6 py-12 shadow-md mx-3">
 					<div className="flex flex-col items-center gap-y-2">
-						<div className="flex items-center gap-1 lg:justify-start">
-							<Pencil className="size-7 text-primary" />
-							<h1 className="text-2xl text-primary font-bold">Job Application Tracker</h1>
+						<div className="flex items-center gap-1 text-blue-600 lg:justify-start">
+							<Briefcase className="size-7" />
+							<h1 className="text-2xl font-bold">Job Application Tracker</h1>
 						</div>
 					</div>
 

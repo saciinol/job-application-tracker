@@ -5,7 +5,7 @@ const Mode = () => {
 	const { theme, toggleTheme } = useTheme();
 
 	return (
-		<button className="cursor-pointer absolute top-2 right-2 text-primary" onClick={toggleTheme}>
+		<button className="cursor-pointer text-primary hover:bg-primary/10 p-2 rounded-lg" onClick={toggleTheme}>
 			{theme === 'light' ? <Sun /> : <Moon />}
 		</button>
 	);

@@ -5,11 +5,11 @@ import { useAuth } from '../../context/auth/useAuth';
 import { validateRegister } from '../../utils/validation';
 import Input from '../ui/Input';
 import Label from '../ui/Label';
-import { Eye, EyeOff } from 'lucide-react';
+import { Eye, EyeOff, Loader2 } from 'lucide-react';
 import Button from '../ui/Button';
 
 const RegisterForm = () => {
-const { register } = useAuth();
+	const { register } = useAuth();
 	const [firstName, setFirstName] = useState('');
 	const [lastName, setLastName] = useState('');
 	const [formData, setFormData] = useState({
@@ -77,8 +77,8 @@ const { register } = useAuth();
 
 		setIsSubmitting(true);
 		try {
-      await register({
-        name: fullName,
+			await register({
+				name: fullName,
 				email: formData.email.trim(),
 				password: formData.password,
 			});
@@ -207,7 +207,14 @@ const { register } = useAuth();
 
 			<div className="flex flex-col gap-2 mt-4">
 				<Button type="submit" disabled={isSubmitting} className="w-full">
-					Sign Up
+					{isSubmitting ? (
+						<div className="flex gap-2">
+							<Loader2 className="animate-spin text-blue-600" />
+							<p>Signing up...</p>
+						</div>
+					) : (
+						'Sign up'
+					)}
 				</Button>
 			</div>
 		</form>

@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Eye, EyeOff } from 'lucide-react';
+import { Eye, EyeOff, Loader2 } from 'lucide-react';
 
 import { useAuth } from '../../context/auth/useAuth';
 import Button from '../ui/Button';
@@ -89,7 +89,14 @@ const LoginForm = () => {
 			</div>
 
 			<Button type="submit" disabled={isSubmitting} className="w-full">
-				Login
+				{isSubmitting ? (
+					<div className='flex gap-2'>
+						<Loader2 className='animate-spin text-blue-600' />
+						<p>Logging in...</p>
+					</div>
+				) : (
+					'Login'
+				)}
 			</Button>
 		</form>
 	);
