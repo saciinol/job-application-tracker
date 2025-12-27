@@ -3,7 +3,6 @@ import { Routes, Route, Navigate } from 'react-router-dom';
 import { useAuth } from './context/auth/useAuth';
 import { PageLoader } from './components/ui/LoadingSpinner';
 import ScrollToTop from './components/ui/ScrollToTop';
-import Layout from './components/ui/Layout';
 
 const Login = lazy(() => import('./pages/Login'));
 const Register = lazy(() => import('./pages/Register'));
@@ -51,9 +50,7 @@ const App = () => {
 					path="/"
 					element={
 						<ProtectedRoute>
-							<Layout>
-								<Dashboard />
-							</Layout>
+							<Dashboard />
 						</ProtectedRoute>
 					}
 				/>

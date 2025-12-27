@@ -5,6 +5,7 @@ const Button = ({ children, variant = 'default', className = '', ...props }) => 
 	const styles = {
 		default: `${base} bg-primary text-background h-10 px-4 py-2 hover:bg-primary/90 duration-100`,
 		transparent: `${base} border bg-transparent text-primary h-10 px-4 py-2 hover:bg-primary hover:text-background duration-100`,
+    blue: `${base} bg-blue-600 text-white px-6 py-3 hover:bg-blue-700 transition font-medium shadow-sm`,
 		icon: `${base} h-10 w-10`,
 	};
 
