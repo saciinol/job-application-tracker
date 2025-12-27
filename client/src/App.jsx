@@ -10,26 +10,20 @@ const Register = lazy(() => import('./pages/Register'));
 const Dashboard = lazy(() => import('./pages/Dashboard'));
 
 const ProtectedRoute = ({ children }) => {
-	const { user, loading } = useAuth();
-
-	if (loading) return <PageLoader />;
-
-	if (!user) return <Navigate to="/login" />;
-
-	return children;
+	const { user } = useAuth();
+	return user ? children : <Navigate to="/login" replace />;
 };
 
 const PublicRoute = ({ children }) => {
-const { user, loading } = useAuth();
-
-	if (loading) return <PageLoader />;
-
-	if (user) return <Navigate to="/" />;
-
-	return children;
+	const { user } = useAuth();
+	return user ? <Navigate to="/" replace /> : children;
 };
 
 const App = () => {
+	const { loading } = useAuth();
+
+	if (loading) return <PageLoader />;
+
 	return (
 		<Suspense fallback={<PageLoader />}>
 			<ScrollToTop />
@@ -43,6 +37,7 @@ const App = () => {
 						</PublicRoute>
 					}
 				/>
+
 				<Route
 					path="/register"
 					element={
@@ -51,6 +46,7 @@ const App = () => {
 						</PublicRoute>
 					}
 				/>
+
 				<Route
 					path="/"
 					element={
@@ -61,6 +57,8 @@ const App = () => {
 						</ProtectedRoute>
 					}
 				/>
+
+				<Route path="*" element={<Navigate to="/" replace />} />
 			</Routes>
 		</Suspense>
 	);

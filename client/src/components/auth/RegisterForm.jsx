@@ -76,6 +76,9 @@ const RegisterForm = () => {
 		setValidationErrors({});
 
 		setIsSubmitting(true);
+
+		await new Promise((res) => setTimeout(res, 500));
+
 		try {
 			await register({
 				name: fullName,

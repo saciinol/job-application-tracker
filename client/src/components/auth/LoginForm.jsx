@@ -31,6 +31,8 @@ const LoginForm = () => {
 		e.preventDefault();
 		setIsSubmitting(true);
 
+		await new Promise((res) => setTimeout(res, 500));
+
 		try {
 			await login({ email: formData.email.trim(), password: formData.password });
 			// eslint-disable-next-line no-unused-vars
@@ -90,8 +92,8 @@ const LoginForm = () => {
 
 			<Button type="submit" disabled={isSubmitting} className="w-full">
 				{isSubmitting ? (
-					<div className='flex gap-2'>
-						<Loader2 className='animate-spin text-blue-600' />
+					<div className="flex gap-2">
+						<Loader2 className="animate-spin text-blue-600" />
 						<p>Logging in...</p>
 					</div>
 				) : (
