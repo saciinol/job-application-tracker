@@ -6,14 +6,14 @@ export const STATUS_OPTIONS = [
 	{ value: 'Rejected', label: 'Rejected', color: 'bg-red-100 text-red-800' },
 ];
 
-export const LIMIT_OPTIONS = [
-  { value: 5, label: '5'},
-  { value: 10, label: '10'},
-  { value: 25, label: '25'},
-  { value: 50, label: '50'},
-]
-
 export const getStatusColor = (status) => {
 	const option = STATUS_OPTIONS.find((opt) => opt.value === status);
 	return option?.color || 'bg-gray-100 text-gray-800';
 };
+
+export const LIMIT_OPTIONS = [
+	{ value: 5, label: '5' },
+	{ value: 10, label: '10' },
+	{ value: 25, label: '25' },
+	{ value: 50, label: '50' },
+];

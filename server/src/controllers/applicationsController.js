@@ -10,7 +10,9 @@ export const getApplications = async (req, res, next) => {
 		const offset = (page - 1) * limit;
 
 		const applications = await applicationsModel.getApplications(userId, limit, offset);
-		res.json({ applications });
+		const hasNextPage = applications.length < limit;
+
+		res.json({ applications, hasNextPage });
 	} catch (error) {
 		next(error);
 	}

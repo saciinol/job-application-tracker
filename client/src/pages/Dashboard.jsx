@@ -1,18 +1,16 @@
-import { useEffect, useState } from 'react';
-import { ChevronDown, Filter, Loader2, Plus, Search } from 'lucide-react';
+import { useEffect, useMemo, useState } from 'react';
+import { ChevronDown, ChevronLeft, ChevronRight, Filter, Loader2, Plus, Search } from 'lucide-react';
 
 import { applicationsAPI } from '../services/applicationsAPI';
-import { analyticsAPI } from '../services/analyticsAPI';
 import Layout from '../components/ui/Layout';
 import Button from '../components/ui/Button';
 import Table, { TableItem } from '../components/applications/Table';
-import StatsCard from '../components/applications/StatsCard';
 import Dropdown, { DropdownItem } from '../components/ui/Dropdown';
 import { LIMIT_OPTIONS, STATUS_OPTIONS } from '../utils/constants';
+import Analytics from '../components/applications/Analytics';
 
 const Dashboard = () => {
 	const [applications, setApplications] = useState([]);
-	const [analytics, setAnalytics] = useState(null);
 	const [loading, setLoading] = useState(true);
 	const [showForm, setShowForm] = useState(false);
 	const [editingApp, setEditingApp] = useState(null);
@@ -20,57 +18,44 @@ const Dashboard = () => {
 	const [statusFilter, setStatusFilter] = useState('All');
 	const [page, setPage] = useState(1);
 	const [limit, setLimit] = useState(10);
+	const [hasNextPage, setHasNextPage] = useState(true);
 
 	useEffect(() => {
-		const fetchApplications = async () => {
-			try {
-				setLoading(true);
-				const { data } = await applicationsAPI.getAll({ page, limit });
-				setApplications(data.applications);
-			} catch (error) {
-				console.error('Failed to load applications', error);
-			} finally {
-				setLoading(false);
-			}
-		};
-
 		fetchApplications();
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [page, limit]);
 
-	useEffect(() => {
-		const fetchAnalytics = async () => {
-			try {
-				const { data } = await analyticsAPI.get();
-				setAnalytics(data.analytics);
-			} catch (error) {
-				console.error('Failed to load analytics', error);
-			}
-		};
 
-		fetchAnalytics();
-	}, []);
 
-	const filteredApplications = applications.filter((app) => {
-		const matchesSearch =
-			app.company_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-			app.position.toLowerCase().includes(searchTerm.toLowerCase());
-		const matchesStatus = statusFilter === 'All' || app.status === statusFilter;
-		return matchesSearch && matchesStatus;
-	});
+	const fetchApplications = async () => {
+		try {
+			setLoading(true);
+			const { data } = await applicationsAPI.getAll({ page, limit });
+			setApplications(data.applications);
+			setHasNextPage(data.hasNextPage);
+		} catch (error) {
+			console.error('Failed to load applications', error);
+		} finally {
+			setLoading(false);
+		}
+	};
+
+	const filteredApplications = useMemo(() => {
+		return applications.filter((app) => {
+			const matchesSearch =
+				app.company_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+				app.position.toLowerCase().includes(searchTerm.toLowerCase());
+			const matchesStatus = statusFilter === 'All' || app.status === statusFilter;
+			return matchesSearch && matchesStatus;
+		});
+	}, [applications, searchTerm, statusFilter]);
+
+	// if (filteredApplications.length < limit) setDisable(true);
 
 	return (
 		<Layout>
 			<div className="space-y-4">
-				<div>Analytics Stats</div>
-				{analytics && (
-					<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
-						<StatsCard title="Total Applications" value={analytics.total} color="blue" />
-						<StatsCard title="Applied" value={analytics.applied} color="indigo" />
-						<StatsCard title="Interviews" value={analytics.interview} color="yellow" />
-						<StatsCard title="Offers" value={analytics.offer} color="green" />
-						<StatsCard title="Rejected" value={analytics.rejected} color="red" />
-					</div>
-				)}
+        <Analytics />
 
 				<div className="flex flex-col gap-3 md:gap-0 md:flex-row md:justify-between items-center">
 					<div className="flex flex-col md:flex-row justify-center items-center gap-3">
@@ -99,6 +84,7 @@ const Dashboard = () => {
 
 								return (
 									<DropdownItem
+										key={status.value}
 										onClick={() => setStatusFilter(status.value)}
 										className={`transition-colors
                     ${isSelected ? 'bg-gray-200 dark:bg-[#1b2027] group-hover:bg-muted' : ''}`}
@@ -142,13 +128,13 @@ const Dashboard = () => {
 					)}
 				</Table>
 
-				<div>
+				<div className="flex justify-between items-center">
 					<div className="flex items-center gap-2">
-						<p className="">Rows per page</p>
+						<p className="text-sm font-semibold">Rows per page</p>
 						<Dropdown
 							className="min-w-20! left-0! bottom-11! border border-primary/10 group"
 							trigger={
-								<div className="flex justify-center items-center border border-primary/10 rounded-lg p-2 hover:bg-gray-200 dark:hover:bg-[#1b2027]">
+								<div className="flex justify-center items-center border border-primary/10 rounded-lg p-2  hover:bg-gray-200 dark:hover:bg-[#1b2027]">
 									<p className="text-sm">{limit}</p>
 									<ChevronDown className="size-4" />
 								</div>
@@ -169,6 +155,29 @@ const Dashboard = () => {
 								);
 							})}
 						</Dropdown>
+					</div>
+
+					<div className="flex justify-center items-center gap-3">
+						<div>
+							<p>Page {page}</p>
+						</div>
+
+						<div className="flex justify-center items-center gap-1">
+							<button
+								onClick={() => setPage(page - 1)}
+								className="border border-primary/10 p-2 rounded-lg cursor-pointer hover:bg-gray-200 dark:hover:bg-[#1b2027] disabled:cursor-default disabled:opacity-50 disabled:hover:bg-muted"
+								disabled={page === 1}
+							>
+								<ChevronLeft className="size-5" />
+							</button>
+							<button
+								onClick={() => setPage(page + 1)}
+								className="border border-primary/10 p-2 rounded-lg cursor-pointer hover:bg-gray-200 dark:hover:bg-[#1b2027] disabled:cursor-default disabled:opacity-50 disabled:hover:bg-muted"
+								disabled={hasNextPage}
+							>
+								<ChevronRight className="size-5" />
+							</button>
+						</div>
 					</div>
 				</div>
 			</div>
