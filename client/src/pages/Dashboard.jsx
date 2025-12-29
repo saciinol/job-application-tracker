@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { ChevronDown, ChevronLeft, ChevronRight, Filter, Loader2, Plus, Search } from 'lucide-react';
+import { ChevronDown, ChevronLeft, ChevronRight, Filter, Loader2, Plus, Search, X } from 'lucide-react';
 
 import { applicationsAPI } from '../services/applicationsAPI';
 import Layout from '../components/ui/Layout';
@@ -24,8 +24,6 @@ const Dashboard = () => {
 		fetchApplications();
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [page, limit]);
-
-
 
 	const fetchApplications = async () => {
 		try {
@@ -55,7 +53,7 @@ const Dashboard = () => {
 	return (
 		<Layout>
 			<div className="space-y-4">
-        <Analytics />
+				<Analytics />
 
 				<div className="flex flex-col gap-3 md:gap-0 md:flex-row md:justify-between items-center">
 					<div className="flex flex-col md:flex-row justify-center items-center gap-3">
@@ -68,6 +66,14 @@ const Dashboard = () => {
 								onChange={(e) => setSearchTerm(e.target.value)}
 								className="w-full md:w-80 pl-10 pr-4 py-2 border border-primary/10 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none text-primary placeholder:text-primary/40"
 							/>
+							{searchTerm && (
+								<div
+									onClick={() => setSearchTerm('')}
+									className="p-2 absolute top-1/2 right-1 transform -translate-y-1/2 cursor-pointer rounded-full transition-colors hover:bg-primary/10"
+								>
+									<X className="text-primary/60 size-4" />
+								</div>
+							)}
 						</div>
 
 						<Dropdown
