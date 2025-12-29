@@ -2,6 +2,12 @@
 
 @custom-variant dark (&:where([data-theme=dark], [data-theme=dark] *));
 
+@layer base {
+  body {
+    color: var(--color-primary);
+  }
+}
+
 @theme {
 	--color-muted: oklch(0.97 0 0);
 	--color-background: oklch(1 0 0);

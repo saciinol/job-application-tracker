@@ -57,7 +57,7 @@ const Layout = ({ children }) => {
 							>
 								<DropdownItem
 									onClick={handleLogout}
-									className="flex items-center gap-2 px-4 py-2 text-sm text-red-600 hover:bg-primary/10 rounded-lg transition cursor-pointer"
+									className="text-sm text-red-600 transition"
 								>
 									{isLoggingOut ? (
 										<Loader2 className="size-4 animate-spin text-blue-600" />

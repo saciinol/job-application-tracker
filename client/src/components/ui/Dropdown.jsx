@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 
-const Dropdown = ({ trigger, children }) => {
+const Dropdown = ({ trigger, children, className = '' }) => {
 	const [open, setOpen] = useState(false);
 	const menuRef = useRef(null);
 
@@ -22,7 +22,7 @@ const Dropdown = ({ trigger, children }) => {
 
 			{open && (
 				<div
-					className="absolute right-0 mt-1 min-w-32 rounded-md bg-muted shadow-md p-1"
+					className={`absolute right-0 mt-1 min-w-32 rounded-md bg-muted shadow-md border border-primary/10 ${className}`}
 					onClick={() => setOpen(false)}
 				>
 					{children}
@@ -35,7 +35,7 @@ const Dropdown = ({ trigger, children }) => {
 export const DropdownItem = ({ children, onClick, className = '' }) => {
 	return (
 		<button
-			className={`${className ? className : 'w-full flex items-center gap-2 text-left px-2.5 py-1.5 rounded-md hover:bg-background duration-100 cursor-pointer'}`}
+			className={`w-full flex items-center gap-2 text-left px-2.5 py-1.5 rounded-md hover:bg-gray-200 dark:hover:bg-[#1b2027] duration-100 cursor-pointer ${className}`}
 			onClick={onClick}
 		>
 			{children}
