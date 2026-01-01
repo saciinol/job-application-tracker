@@ -4,15 +4,30 @@ import { AppError } from '../utils/AppError.js';
 export const getApplications = async (req, res, next) => {
 	try {
 		const userId = req.user.id;
-		const page = parseInt(req.query.page) || 1;
-		const limit = parseInt(req.query.limit) || 10;
+		const { page = 1, limit = 10, search, status } = req.query;
 
-		const offset = (page - 1) * limit;
+		const pageNum = Number(page);
+		const limitNum = Number(limit);
 
-		const applications = await applicationsModel.getApplications(userId, limit, offset);
-		const hasNextPage = applications.length < limit;
+		if (!Number.isInteger(pageNum) || !Number.isInteger(limitNum) || pageNum < 1 || limitNum > 50) {
+			throw new AppError('Invalid pagination', 400);
+		}
 
-		res.json({ applications, hasNextPage });
+		const offset = (pageNum - 1) * limitNum;
+
+		const { items, total } = await applicationsModel.getApplications(userId, {
+			limit: limitNum,
+			offset,
+			search,
+			status,
+		});
+
+		res.json({
+			items,
+			total,
+			page: pageNum,
+			totalPages: Math.ceil(total / limitNum),
+		});
 	} catch (error) {
 		next(error);
 	}
@@ -21,9 +36,9 @@ export const getApplications = async (req, res, next) => {
 export const createApplication = async (req, res, next) => {
 	try {
 		const userId = req.user.id;
-		const application = req.body;
+		const data = req.body;
 
-		const apply = await applicationsModel.createApplication(userId, application);
+		const apply = await applicationsModel.createApplication(userId, data);
 		res.status(201).json({ application: apply });
 	} catch (error) {
 		next(error);
@@ -46,9 +61,9 @@ export const updateApplication = async (req, res, next) => {
 	try {
 		const userId = req.user.id;
 		const applicationId = parseInt(req.params.id);
-		const updates = req.body;
+		const data = req.body;
 
-		const hasValidUpdates = Object.keys(updates).some((key) => UPDATABLE_FIELDS.includes(key));
+		const hasValidUpdates = Object.keys(data).some((key) => UPDATABLE_FIELDS.includes(key));
 		if (!hasValidUpdates) throw new AppError('At least one valid field must be provided for update', 400);
 
 		const application = await applicationsModel.findApplicationById(applicationId);
@@ -56,7 +71,7 @@ export const updateApplication = async (req, res, next) => {
 
 		if (application.user_id !== userId) throw new AppError('Not authorized to update this application', 403);
 
-		const update = await applicationsModel.updateApplication(userId, applicationId, updates);
+		const update = await applicationsModel.updateApplication(userId, applicationId, data);
 		if (!update) throw new AppError('Application not found', 404);
 		res.json({ application: update });
 	} catch (error) {

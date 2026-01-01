@@ -1,14 +1,46 @@
 import pool from '../config/db.js';
 
-export const getApplications = async (userId, limit = 10, offset = 0) => {
-	const result = await pool.query(
-		`SELECT * FROM applications
-    WHERE user_id = $1
+export const getApplications = async (userId, { limit = 10, offset = 0, search, status } = {}) => {
+	const conditions = [`user_id = $1`];
+	const values = [userId];
+
+	if (search?.trim()) {
+		values.push(`%${search}%`);
+		conditions.push(`(company_name || ' ' || position) ILIKE $${values.length}`);
+	}
+
+	const validStatuses = ['Applied', 'Interview', 'Offer', 'Rejected'];
+	if (status && validStatuses.includes(status)) {
+		values.push(status);
+		conditions.push(`status = $${values.length}`);
+	}
+
+	const whereClause = conditions.length > 1 ? `WHERE ${conditions.join(' AND ')}` : `WHERE ${conditions[0]}`;
+
+	const dataValues = [...values, limit, offset];
+
+	const dataQuery = `
+    SELECT *
+    FROM applications
+    ${whereClause}
     ORDER BY created_at DESC
-    LIMIT $2 OFFSET $3`,
-		[userId, limit, offset]
-	);
-	return result.rows;
+    LIMIT $${dataValues.length - 1}
+    OFFSET $${dataValues.length}`;
+
+	const countQuery = `
+    SELECT COUNT(*)::int AS total
+    FROM applications
+    ${whereClause}`;
+
+	const [dataResult, countResult] = await Promise.all([
+		pool.query(dataQuery, dataValues),
+		pool.query(countQuery, values),
+	]);
+
+	return {
+		items: dataResult.rows,
+		total: countResult.rows[0].total,
+	};
 };
 
 export const createApplication = async (userId, application) => {

@@ -1,224 +1,294 @@
-import { useState } from 'react';
-import { X } from 'lucide-react';
+import { ChevronDown, Filter, Loader2 } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import Input from '../ui/Input';
+import Label from '../ui/Label';
+import Button from '../ui/Button';
 import { STATUS_OPTIONS } from '../../utils/constants';
+import toast from 'react-hot-toast';
 
-const ApplicationForm = ({ application, onSubmit, onClose }) => {
-	const isEditing = !!application;
-  const applied_date = application?.applied_date && new Date(application.applied_date).toISOString().split('T')[0];
-  const deadline = application?.deadline && new Date(application.deadline).toISOString().split('T')[0];
+const formatDate = (value) => {
+	if (!value) return '';
+	try {
+		return new Date(value).toISOString().split('T')[0];
+	} catch {
+		return '';
+	}
+};
 
-	const [formData, setFormData] = useState({
-		company_name: application?.company_name || '',
-		position: application?.position || '',
-		status: application?.status || 'Applied',
-		location: application?.location || '',
-		salary_range: application?.salary_range || '',
-		job_url: application?.job_url || '',
-		notes: application?.notes || '',
-		applied_date: applied_date || new Date().toISOString().split('T')[0],
-		deadline: deadline || '',
-	});
+const getEmptyForm = () => ({
+	company_name: '',
+	position: '',
+	status: 'Applied',
+	location: '',
+	salary_range: '',
+	job_url: '',
+	notes: '',
+	applied_date: new Date().toISOString().split('T')[0],
+	deadline: '',
+});
 
-	const [loading, setLoading] = useState(false);
+const ApplicationForm = ({ mode, handleCreate, handleUpdate, mutating, application, onClose }) => {
+	const [formData, setFormData] = useState(getEmptyForm);
+
+	useEffect(() => {
+		if (!application) {
+			setFormData(getEmptyForm());
+			return;
+		}
+
+		setFormData({
+			company_name: application.company_name ?? '',
+			position: application.position ?? '',
+			status: application.status ?? 'Applied',
+			location: application.location ?? '',
+			salary_range: application.salary_range ?? '',
+			job_url: application.job_url ?? '',
+			notes: application.notes ?? '',
+			applied_date: formatDate(application.applied_date) || new Date().toISOString().split('T')[0],
+			deadline: formatDate(application.deadline),
+		});
+	}, [application]);
 
 	const handleChange = (e) => {
 		const { name, value } = e.target;
 		setFormData((prev) => ({ ...prev, [name]: value }));
 	};
 
-	const handleSubmit = async (e) => {
-		e.preventDefault();
-		setLoading(true);
+	const REQUIRED_FIELDS = ['company_name', 'position', 'status', 'applied_date'];
 
-		try {
-			// Remove empty optional fields
-			const cleanedData = Object.entries(formData).reduce((acc, [key, value]) => {
-				if (value !== '') {
-					acc[key] = value;
+	const handleSubmit = (e) => {
+		e.preventDefault();
+
+		if (mode === 'edit') {
+			const changes = Object.keys(formData).reduce((acc, key) => {
+				let newValue = formData[key] ?? '';
+				let oldValue = application[key] ?? '';
+
+				if (key === 'applied_date' || key === 'deadline') {
+					newValue = formatDate(newValue);
+					oldValue = formatDate(oldValue);
+				}
+
+				if (newValue !== oldValue) {
+					acc[key] = newValue;
 				}
 				return acc;
 			}, {});
 
-			await onSubmit(cleanedData);
-		} catch (error) {
-			console.error('Form submission error:', error);
-		} finally {
-			setLoading(false);
+			if (Object.keys(changes).length === 0) {
+				return;
+			}
+
+			handleUpdate(application.id, changes);
+		} else {
+			const payload = Object.keys(formData).reduce((acc, key) => {
+				const value = formData[key] ?? '';
+
+				if (REQUIRED_FIELDS.includes(key)) {
+					if (!value) return acc;
+					acc[key] = value;
+					return acc;
+				}
+
+				if (value !== '' && value !== null) {
+					acc[key] = value;
+				}
+
+				return acc;
+			}, {});
+
+			const missing = REQUIRED_FIELDS.filter((k) => !payload[k]);
+			if (missing.length > 0) {
+				toast.error(`Missing required fields: ${missing.join(', ')} `);
+				return;
+			}
+
+			handleCreate(payload);
 		}
 	};
 
 	return (
-		<div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-			<div className="bg-white rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-				{/* Header */}
-				<div className="flex items-center justify-between p-6 border-b sticky top-0 bg-white rounded-t-2xl">
-					<h2 className="text-2xl font-bold text-gray-900">{isEditing ? 'Edit Application' : 'Add New Application'}</h2>
-					<button onClick={onClose} className="text-gray-400 hover:text-gray-600 transition">
-						<X className="w-6 h-6" />
-					</button>
-				</div>
+		<div className="space-y-4">
+			<div>
+				<h2 className="text-2xl font-bold text-primary">
+					{mode === 'edit' ? 'Edit Job Application' : 'Add Job Application'}
+				</h2>
+			</div>
 
-				{/* Form */}
-				<form onSubmit={handleSubmit} className="p-6 space-y-6">
-					{/* Company Name - Required */}
-					<div>
-						<label className="block text-sm font-medium text-gray-700 mb-2">
-							Company Name <span className="text-red-500">*</span>
-						</label>
-						<input
+			<form onSubmit={handleSubmit} id="application-form" className="flex flex-col space-y-4">
+				<div className="flex gap-4">
+					<div className="relative flex-1">
+						<Input
+							id="company_name"
 							type="text"
 							name="company_name"
 							value={formData.company_name}
 							onChange={handleChange}
-							className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition"
-							placeholder="e.g., Google, Microsoft"
+							placeholder=""
+							disabled={mutating}
 							required
 						/>
+
+						<Label htmlFor="company_name">
+							Company Name <span className="text-red-600">*</span>
+						</Label>
 					</div>
 
-					{/* Position - Required */}
-					<div>
-						<label className="block text-sm font-medium text-gray-700 mb-2">
-							Position <span className="text-red-500">*</span>
-						</label>
-						<input
+					<div className="relative flex-1">
+						<Input
+							id="position"
 							type="text"
 							name="position"
 							value={formData.position}
 							onChange={handleChange}
-							className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition"
-							placeholder="e.g., Software Engineer, Product Manager"
+							placeholder=""
+							disabled={mutating}
 							required
 						/>
+
+						<Label htmlFor="position">
+							Position <span className="text-red-600">*</span>
+						</Label>
+					</div>
+				</div>
+
+				<div className="flex gap-4">
+					<div className="relative flex-1">
+						<ChevronDown className="absolute top-1/2 right-3 transform -translate-y-1/2 pointer-events-none size-5 text-primary/30" />
+						<select
+							id="status"
+							name="status"
+							value={formData.status}
+							onChange={handleChange}
+							placeholder=""
+							disabled={mutating}
+							required
+							className="flex w-full border-primary/20 text-primary bg-transparent px-3 pt-4 pb-2 text-base disabled:cursor-not-allowed disabled:opacity-50 peer focus:border-blue-600 rounded-md border focus:outline-none appearance-none"
+						>
+							{STATUS_OPTIONS.filter((s) => s.value !== 'All').map((status) => (
+								<option key={status.value} value={status.value}>
+									{status.label}
+								</option>
+							))}
+						</select>
+						<Label htmlFor="status">
+							Status <span className="text-red-600">*</span>
+						</Label>
 					</div>
 
-					{/* Status and Applied Date Row */}
-					<div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-						{/* Status */}
-						<div>
-							<label className="block text-sm font-medium text-gray-700 mb-2">
-								Status <span className="text-red-500">*</span>
-							</label>
-							<select
-								name="status"
-								value={formData.status}
-								onChange={handleChange}
-								className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition appearance-none bg-white"
-								required
-							>
-								{STATUS_OPTIONS.map((option) => (
-									<option key={option.value} value={option.value}>
-										{option.label}
-									</option>
-								))}
-							</select>
-						</div>
+					<div className="relative flex-1">
+						<Input
+							id="applied_date"
+							type="date"
+							name="applied_date"
+							value={formData.applied_date}
+							onChange={handleChange}
+							placeholder=""
+							disabled={mutating}
+							required
+							className="block!"
+						/>
 
-						{/* Applied Date */}
-						<div>
-							<label className="block text-sm font-medium text-gray-700 mb-2">
-								Applied Date <span className="text-red-500">*</span>
-							</label>
-							<input
-								type="date"
-								name="applied_date"
-								value={formData.applied_date}
-								onChange={handleChange}
-								className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition"
-								required
-							/>
-						</div>
+						<Label htmlFor="applied_date">
+							Applied Date <span className="text-red-600">*</span>
+						</Label>
+					</div>
+				</div>
+
+				<div className="flex gap-4">
+					<div className="relative flex-1">
+						<Input
+							id="location"
+							type="text"
+							name="location"
+							value={formData.location}
+							onChange={handleChange}
+							placeholder=""
+							disabled={mutating}
+						/>
+
+						<Label htmlFor="location">Location</Label>
 					</div>
 
-					{/* Location and Salary Range Row */}
-					<div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-						{/* Location */}
-						<div>
-							<label className="block text-sm font-medium text-gray-700 mb-2">Location</label>
-							<input
-								type="text"
-								name="location"
-								value={formData.location}
-								onChange={handleChange}
-								className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition"
-								placeholder="e.g., San Francisco, CA"
-							/>
-						</div>
+					<div className="relative flex-1">
+						<Input
+							id="salary_range"
+							type="text"
+							name="salary_range"
+							value={formData.salary_range}
+							onChange={handleChange}
+							placeholder=""
+							disabled={mutating}
+						/>
 
-						{/* Salary Range */}
-						<div>
-							<label className="block text-sm font-medium text-gray-700 mb-2">Salary Range</label>
-							<input
-								type="text"
-								name="salary_range"
-								value={formData.salary_range}
-								onChange={handleChange}
-								className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition"
-								placeholder="e.g., $80k - $120k"
-							/>
-						</div>
+						<Label htmlFor="salary_range">Salary Range</Label>
+					</div>
+				</div>
+
+				<div className="flex gap-4">
+					<div className="relative flex-1">
+						<Input
+							id="job_url"
+							type="text"
+							name="job_url"
+							value={formData.job_url}
+							onChange={handleChange}
+							placeholder=""
+							disabled={mutating}
+						/>
+
+						<Label htmlFor="job_url">Job URL</Label>
 					</div>
 
-					{/* Job URL and Deadline Row */}
-					<div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-						{/* Job URL */}
-						<div>
-							<label className="block text-sm font-medium text-gray-700 mb-2">Job URL</label>
-							<input
-								type="url"
-								name="job_url"
-								value={formData.job_url}
-								onChange={handleChange}
-								className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition"
-								placeholder="https://..."
-							/>
-						</div>
+					<div className="relative flex-1">
+						<Input
+							id="deadline"
+							type="date"
+							name="deadline"
+							value={formData.deadline}
+							onChange={handleChange}
+							placeholder=""
+							disabled={mutating}
+							className="block!"
+						/>
 
-						{/* Deadline */}
-						<div>
-							<label className="block text-sm font-medium text-gray-700 mb-2">Deadline</label>
-							<input
-								type="date"
-								name="deadline"
-								value={formData.deadline}
-								onChange={handleChange}
-								className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition"
-							/>
-						</div>
+						<Label htmlFor="deadline">Deadline</Label>
 					</div>
+				</div>
 
-					{/* Notes */}
-					<div>
-						<label className="block text-sm font-medium text-gray-700 mb-2">Notes</label>
+				<div className="flex">
+					<div className="relative flex-1">
 						<textarea
+							id="notes"
+							type="text"
 							name="notes"
 							value={formData.notes}
 							onChange={handleChange}
-							rows={4}
-							className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition resize-none"
-							placeholder="Add any additional notes about this application..."
+							placeholder=""
+							disabled={mutating}
+							className="flex w-full border-primary/20 text-primary bg-transparent px-3 pt-4 pb-2 text-base disabled:cursor-not-allowed disabled:opacity-50 peer focus:border-blue-600 rounded-md border focus:outline-none resize-none"
 						/>
-					</div>
 
-					{/* Form Actions */}
-					<div className="flex gap-3 pt-4">
-						<button
-							type="button"
-							onClick={onClose}
-							className="flex-1 px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition font-medium"
-						>
-							Cancel
-						</button>
-						<button
-							type="submit"
-							disabled={loading}
-							className="flex-1 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition font-medium"
-						>
-							{loading ? 'Saving...' : isEditing ? 'Update Application' : 'Add Application'}
-						</button>
+						<Label htmlFor="notes">Notes</Label>
 					</div>
-				</form>
-			</div>
+				</div>
+
+				<div className="flex justify-end gap-2">
+					<Button type="button" onClick={onClose}>
+						Cancel
+					</Button>
+					<Button type="submit" form="application-form" variant="blue" className={`${mutating ? 'px-4!' : 'px-6!'}`}>
+						{mutating ? (
+							<>
+								<Loader2 className="size-4 animate-spin mr-2" />
+								Save
+							</>
+						) : (
+							'Save'
+						)}
+					</Button>
+				</div>
+			</form>
 		</div>
 	);
 };

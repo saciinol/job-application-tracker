@@ -3,6 +3,7 @@ import { Routes, Route, Navigate } from 'react-router-dom';
 import { useAuth } from './context/auth/useAuth';
 import { PageLoader } from './components/ui/LoadingSpinner';
 import ScrollToTop from './components/ui/ScrollToTop';
+import { Toaster } from 'react-hot-toast';
 
 const Login = lazy(() => import('./pages/Login'));
 const Register = lazy(() => import('./pages/Register'));
@@ -26,6 +27,8 @@ const App = () => {
 	return (
 		<Suspense fallback={<PageLoader />}>
 			<ScrollToTop />
+
+			<Toaster position="top-right" />
 
 			<Routes>
 				<Route

@@ -38,4 +38,8 @@ CREATE TABLE applications (
 -- ============================================
 -- INDEXES
 -- ============================================
-CREATE INDEX idx_applications_created_at ON applications (created_at DESC);
+CREATE INDEX idx_applications_user_created_at ON applications (user_id, created_at DESC);
+CREATE INDEX idx_applications_user_status_created_at ON applications (user_id, status, created_at DESC);
+
+CREATE EXTENSION IF NOT EXISTS pg_trgm;
+CREATE INDEX id_applications_search_trgm ON applications USING GIN ((company_name || ' ' || position) gin_trgm_ops);
