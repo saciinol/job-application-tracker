@@ -5,7 +5,7 @@ import Modal from '../ui/Modal';
 const DeleteModal = ({ handleDelete, mutating, id, onClose }) => {
 	return (
 		<Modal open onClose={onClose}>
-			<div className="flex flex-col justify-center items-center gap-4 p-4">
+			<div className="flex flex-col justify-center items-center gap-10 p-4">
 				<p className="text-xl">Are you sure you want to delete this application?</p>
 
 				<div className="space-x-4">

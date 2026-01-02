@@ -99,7 +99,6 @@ const useDashboardData = (initial = { page: 1, limit: 10 }) => {
 		async (payload) => {
 			setMutating(true);
 			try {
-				console.log(payload);
 				await applicationsAPI.create(payload);
 				toast.success('Application added succesfully!');
 				setModal(null);
