@@ -1,8 +1,8 @@
-import { ChevronDown, ChevronLeft, ChevronRight } from 'lucide-react';
+import { ChevronDown, ChevronFirst, ChevronLast, ChevronLeft, ChevronRight } from 'lucide-react';
 import { LIMIT_OPTIONS } from '../../utils/constants';
 import Dropdown, { DropdownItem } from '../ui/Dropdown';
 
-const PaginationControls = ({ limit, setLimit, page, setPage, canGoNext, canGoPrev, totalPages }) => {
+const PaginationControls = ({ limit, setLimit, page, setPage, canGoNext, canGoPrev, totalPages, totalCount }) => {
 	return (
 		<div className="flex justify-between items-center">
 			<div className="flex items-center gap-2">
@@ -22,7 +22,10 @@ const PaginationControls = ({ limit, setLimit, page, setPage, canGoNext, canGoPr
 						return (
 							<DropdownItem
 								key={option.value}
-								onClick={() => setLimit(option.value)}
+								onClick={() => {
+									setLimit(option.value);
+									setPage(1);
+								}}
 								className={`transition-colors
                     ${isSelected ? 'bg-gray-200 dark:bg-[#1b2027] group-hover:bg-muted' : ''}`}
 							>
@@ -34,13 +37,19 @@ const PaginationControls = ({ limit, setLimit, page, setPage, canGoNext, canGoPr
 			</div>
 
 			<div className="flex justify-center items-center gap-3">
-				<div>
-					<p>
-						Page {page} of {totalPages}
-					</p>
-				</div>
+				<p className="text-sm">
+					{limit * (page - 1) + 1}-{!canGoNext ? totalCount : limit * page}<span className="text-gray-400"> of </span>
+					{totalCount}
+				</p>
 
 				<div className="flex justify-center items-center gap-1">
+					<button
+						onClick={() => setPage(1)}
+						className="border border-primary/10 p-2 rounded-lg cursor-pointer hover:bg-gray-200 dark:hover:bg-[#1b2027] disabled:cursor-default disabled:opacity-50 disabled:hover:bg-muted"
+						disabled={!canGoPrev}
+					>
+						<ChevronFirst className="size-5" />
+					</button>
 					<button
 						onClick={() => setPage(page - 1)}
 						className="border border-primary/10 p-2 rounded-lg cursor-pointer hover:bg-gray-200 dark:hover:bg-[#1b2027] disabled:cursor-default disabled:opacity-50 disabled:hover:bg-muted"
@@ -48,12 +57,20 @@ const PaginationControls = ({ limit, setLimit, page, setPage, canGoNext, canGoPr
 					>
 						<ChevronLeft className="size-5" />
 					</button>
+
 					<button
 						onClick={() => setPage(page + 1)}
 						className="border border-primary/10 p-2 rounded-lg cursor-pointer hover:bg-gray-200 dark:hover:bg-[#1b2027] disabled:cursor-default disabled:opacity-50 disabled:hover:bg-muted"
 						disabled={!canGoNext}
 					>
 						<ChevronRight className="size-5" />
+					</button>
+					<button
+						onClick={() => setPage(totalPages)}
+						className="border border-primary/10 p-2 rounded-lg cursor-pointer hover:bg-gray-200 dark:hover:bg-[#1b2027] disabled:cursor-default disabled:opacity-50 disabled:hover:bg-muted"
+						disabled={!canGoNext}
+					>
+						<ChevronLast className="size-5" />
 					</button>
 				</div>
 			</div>

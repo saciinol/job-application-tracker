@@ -27,7 +27,7 @@ const useDashboardData = (initial = { page: 1, limit: 10 }) => {
 	const [page, setPage] = useState(initial.page);
 	const [limit, setLimit] = useState(initial.limit);
 
-	// modal state: null | 'create' | { mode: 'edit', application }
+	// modal state: null | 'create' | { mode: 'edit', application } | { mode: 'delete', id }
 	const [modal, setModal] = useState(null);
 
 	// fetch applications with server side paging

@@ -7,15 +7,15 @@ const Table = ({ children }) => {
 	return (
 		<div className="border border-primary/10 rounded-lg overflow-hidden">
 			<div className="overflow-x-auto">
-				<table className="w-full">
+				<table className="w-full table-fixed">
 					<thead className="bg-primary/5 border-b border-primary/10">
 						<tr>
-							<th className="px-4 py-3 text-left text-sm font-semibold text-primary">Company</th>
-							<th className="px-4 py-3 text-left text-sm font-semibold text-primary">Position</th>
-							<th className="px-4 py-3 text-left text-sm font-semibold text-primary">Status</th>
-							<th className="px-4 py-3 text-left text-sm font-semibold text-primary">Details</th>
-							<th className="px-4 py-3 text-left text-sm font-semibold text-primary">Dates</th>
-							<th className="px-4 py-3 text-center text-sm font-semibold text-primary sticky right-0 bg-primary/5">
+							<th className="px-4 py-3 text-left text-sm font-semibold text-primary w-auto">Company</th>
+							<th className="px-4 py-3 text-left text-sm font-semibold text-primary w-auto">Position</th>
+							<th className="px-4 py-3 text-left text-sm font-semibold text-primary w-32 xl:w-40">Status</th>
+							<th className="px-4 py-3 text-left text-sm font-semibold text-primary w-auto">Details</th>
+							<th className="px-4 py-3 text-left text-sm font-semibold text-primary w-40">Dates</th>
+							<th className="px-4 py-3 text-center text-sm font-semibold text-primary w-32 xl:w-40 sticky right-0 bg-primary/5">
 								Actions
 							</th>
 						</tr>
@@ -64,7 +64,11 @@ export const TableItem = ({ application, onEdit, onDelete }) => {
 			</td>
 
 			<td className="px-4 py-4">
-				<span className={`inline-flex px-2 py-1 w-18 justify-center rounded-lg text-xs font-medium ${getStatusColor(status)}`}>
+				<span
+					className={`inline-flex px-2 py-1 w-18 justify-center rounded-lg text-xs font-medium ${getStatusColor(
+						status
+					)}`}
+				>
 					{status}
 				</span>
 			</td>

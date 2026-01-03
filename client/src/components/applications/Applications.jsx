@@ -1,7 +1,8 @@
 import { Loader2, Briefcase } from 'lucide-react';
 import Table, { TableItem } from './Table';
+import ApplicationCard from './ApplicationCard';
 
-const ApplicationsTable = ({ applications, appsLoading, searchTerm, statusFilter, onEdit, onDelete }) => {
+const Applications = ({ applications, appsLoading, searchTerm, statusFilter, onEdit, onDelete }) => {
 	if (appsLoading) {
 		return (
 			<div className="flex justify-center py-12 border border-primary/10 rounded-lg">
@@ -27,17 +28,34 @@ const ApplicationsTable = ({ applications, appsLoading, searchTerm, statusFilter
 	}
 
 	return (
-		<Table>
-			{applications.map((app) => (
-				<TableItem
-					key={app.id}
-					application={app}
-					onEdit={() => onEdit(app)}
-					onDelete={() => onDelete(app.id)}
-				/>
-			))}
-		</Table>
+		<>
+			{/* cards on mobile */}
+			<div className="block lg:hidden space-y-4">
+				{applications.map((app) => (
+					<ApplicationCard
+						key={app.id}
+						application={app}
+						onEdit={() => onEdit(app)}
+						onDelete={() => onDelete(app.id)}
+					/>
+				))}
+			</div>
+
+			{/* table on desktop */}
+			<div className="hidden lg:block">
+				<Table>
+					{applications.map((app) => (
+						<TableItem
+              key={app.id}
+              application={app}
+              onEdit={() => onEdit(app)}
+              onDelete={() => onDelete(app.id)}
+            />
+					))}
+				</Table>
+			</div>
+		</>
 	);
 };
 
-export default ApplicationsTable;
+export default Applications;

@@ -1,5 +1,6 @@
 import { Loader2 } from 'lucide-react';
 import StatsCard from './StatsCard';
+import { STATUS_OPTIONS } from '../../utils/constants';
 
 const Analytics = ({ analytics, analyticsLoading }) => {
 	if (!analytics) return null;
@@ -13,12 +14,15 @@ const Analytics = ({ analytics, analyticsLoading }) => {
 	}
 
 	return (
-		<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
-			<StatsCard title="Total Applications" value={analytics.total} color="blue" />
-			<StatsCard title="Applied" value={analytics.applied} color="indigo" />
-			<StatsCard title="Interviews" value={analytics.interview} color="yellow" />
-			<StatsCard title="Offers" value={analytics.offer} color="green" />
-			<StatsCard title="Rejected" value={analytics.rejected} color="red" />
+		<div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6">
+			{STATUS_OPTIONS.map((status) => (
+				<StatsCard
+					key={status.value}
+					title={status.value === 'All' ? 'Total Applications' : status.label}
+					value={status.value === 'All' ? analytics.total : analytics[status.value.toLowerCase()]}
+					colors={status.colors}
+				/>
+			))}
 		</div>
 	);
 };

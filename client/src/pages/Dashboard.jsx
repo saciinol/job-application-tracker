@@ -1,7 +1,7 @@
 import Layout from '../components/ui/Layout';
 import Analytics from '../components/applications/Analytics';
 import FiltersBar from '../components/applications/FiltersBar';
-import ApplicationsTable from '../components/applications/ApplicationsTable';
+import Applications from '../components/applications/Applications';
 import PaginationControls from '../components/applications/PaginationControls';
 import useDashboardData from '../hooks/useDashboardData';
 import { useCallback } from 'react';
@@ -11,6 +11,7 @@ const Dashboard = () => {
 	const {
 		applications,
 		analytics,
+    totalCount,
 
 		appsLoading,
 		analyticsLoading,
@@ -54,7 +55,7 @@ const Dashboard = () => {
 					onAdd={openCreate}
 				/>
 
-				<ApplicationsTable
+				<Applications
 					applications={applications}
 					appsLoading={appsLoading}
 					searchTerm={searchTerm}
@@ -71,6 +72,7 @@ const Dashboard = () => {
 					canGoNext={canGoNext}
 					canGoPrev={canGoPrev}
 					totalPages={totalPages}
+          totalCount={totalCount}
 				/>
 			</div>
 
